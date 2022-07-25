@@ -9,6 +9,7 @@ const Login = (props) => {
                     <Description>
                         Disney has announced that Disney+ will be available on pretty much every streaming platform including Amazon products like Fire TV (due to a last minute agreement with Amazon).
                     </Description>
+                    <CTALogoTwo src="/images/cta-logo-two.png" alt="" />
                 </CTA>
                 <BgImage />
             </Content>
@@ -83,5 +84,17 @@ const SignUp = styled.a`
 
 const Description = styled.p`
     color: hsla(0, 0%, 95.3%, 1);
+    font-size: 14px;
+    margin: 0 0 22px;
+    line-height: 1.5;
+    letter-spacing: 1.5px
+`;
+
+const CTALogoTwo = styled.img`
+max-width: 600px;
+margin-bottom: 20px;
+display: inline-block;
+vertical-align: bottom;
+width: 100%;
 `;
 export default Login;
