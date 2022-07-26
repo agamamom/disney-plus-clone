@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { auth, provider } from "../firebase";
 import { useDispatch, useSelector } from "react-redux/es/exports";
 import { useNavigate } from 'react-router-dom';
-import { selectUserName, selectUserPhoto, setUserLoginDetail } from "../features/user/userSlice";
+import { selectUserName, selectUserPhoto, setSignOutState, setUserLoginDetail } from "../features/user/userSlice";
 import { useEffect } from "react";
 
 const Header = (props) => {
@@ -11,16 +11,32 @@ const Header = (props) => {
     const userName = useSelector(selectUserName);
     const userPhoto = useSelector(selectUserPhoto);
 
-    useEffect()
+    //UseEffect sẽ giúp Brower lưu lại đc thông tin tk được đăng nhập kể cả khi dc reload lại trang.(Nếu ko có UseEffect thì load lại trang sẽ mất dữ liệu của tk dc đăng nhập).
+    useEffect(() => {
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                setUser(user)
+                navigate("/home", { replace: true });
+            }
+        })
+    }, [userName]);
+
     const handleAuth = () => {
-        auth
-            .signInWithPopup(provider)
-            .then((result) => {
-                setUser(result.user);
-            })
-            .catch((error) => {
-                alert(error.message)
-            })
+        if (!userName) {
+            auth
+                .signInWithPopup(provider)
+                .then((result) => {
+                    setUser(result.user);
+                })
+                .catch((error) => {
+                    alert(error.message)
+                })
+        } else if (userName) {
+            auth.signOut().then(() => {
+                dispatch(setSignOutState());
+                navigate("/", { replace: true });
+            }).catch((err) => alert(err.message));
+        }
     };
 
     const setUser = (user) => {
@@ -69,7 +85,12 @@ const Header = (props) => {
                                     <span>SERIES</span>
                                 </a>
                             </NavMenu>
-                            <UserImg src={userPhoto} alt={userName} />
+                            <SignOut>
+                                <UserImg src={userPhoto} alt={userName} />
+                                <DropDown>
+                                    <span onClick={handleAuth}>Sign out</span>
+                                </DropDown>
+                            </SignOut>
                         </>
                     )
             }
@@ -185,5 +206,44 @@ const Login = styled.a`
 
 const UserImg = styled.img`
     height: 100%;
+    
 `;
+
+const DropDown = styled.div`
+    position: absolute;
+    top: 48px;
+    right: 0px;
+    background: rgb(19, 19, 19);
+    border: 1px solid rgba(151, 151, 151, 0.34);
+    border-radius: 4px;
+    box-shadow: rgb(0 0 0 / 50%) 0px 0px 18px 0px;
+    padding: 10px;
+    font-size: 14px;
+    letter-spacing: 3px;
+    opacity: 0;
+    white-space: nowrap;
+`;
+
+const SignOut = styled.div`
+    position: relative;
+    height: 48px; 
+    width: 48px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    ${UserImg}{
+        border-radius: 50%;
+        width: 100%;
+        height: 100%;
+    }
+    &:hover{
+        ${DropDown}{
+            opacity: 1;
+            transition-duration: 1s;
+        }
+    }
+`;
+
+
 export default Header;
