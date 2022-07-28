@@ -7,7 +7,7 @@ const Recommends = (props) => {
     return (
         <Container>
             <h4>
-                New Disney
+                New to Disney +
             </h4>
             <Content>
                 {
